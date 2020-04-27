@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
-  "label": "Deployment",
-  "message": "failed",
-  "color": "red"
+  "label": "Deploy",
+  "message": "success",
+  "color": "green",
+  "icon": "github"
 }

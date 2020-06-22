@@ -1,22 +1,36 @@
 name: Deploy
 
-on:
-  release:
-    types: [published]
+on: push
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    
+    # env:
+    #   ATOM_DIR:
+
     steps:
+    - name: Install apm (with Atom)
+      run: |
+        wget https://atom.io/download/deb &&
+        sudo dpkg -i atom-amd64.deb
+        apm --version
+    - run: ls -a
+
     - name: Checkout repo
-      uses: actions/checkout@v2.1.0
-    
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v1.4.2
+      uses: actions/checkout@28c7f3d2b5162b5ddd3dfd9a45aa55eaf396478b # v2.3.1
       with:
-        node-version: '12.x'
-    
-    - run: git remote -v
+        path: repo # Does this cd automatically??
+        submodules: true
+    - run: ls -a
+
+    # - name: Setup Node.js environment
+    #   uses: actions/setup-node@44c9c187283081e4e88b54b0efad9e9d468165a4 # v1.4.2
+    #   with:
+    #     node-version: '12.x'
+
+    # - name: Check release version matches package.json
+    #   run: node ./.github/bin/check-package-version ${{ github.ref }}
+
+

@@ -37,8 +37,13 @@ jobs:
           if (releaseVer === packageVer) {
             console.log('Version: ${releaseVer}');
           } else {
-            throw new Error(`Release version (${releaseVer}) does not match package.json version (${packageVer})`);
+            setFailed(`Release version (${releaseVer}) does not match package.json version (${packageVer})`);
           }
         } else {
-          throw new Error(`No tag detected in ref '${process.env.GH_REF}'`);
+          setFailed(`No tag detected in ref '${process.env.GH_REF}'`);
+        }
+
+        function setFailed(msg) {
+          console.log(msg);
+          process.exitCode = 1;
         }

@@ -17,8 +17,7 @@ jobs:
         DEB_FILE: atom-amd64.deb
       run: |
         wget -nv -O "$DEB_FILE" https://atom.io/download/deb &&
-        sudo dpkg -i "$DEB_FILE"
-        sudo apt-get -f install
+        sudo apt install "./$DEB_FILE"
         apm --version
     - run: ls -a
 

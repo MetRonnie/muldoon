@@ -40,5 +40,5 @@ jobs:
             throw new Error(`Release version (${releaseVer}) does not match package.json version (${packageVer})`);
           }
         } else {
-          throw new Error(`No tag detected in ref '${ref}'`);
+          throw new Error(`No tag detected in ref '${process.env.GH_REF}'`);
         }

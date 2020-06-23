@@ -12,24 +12,29 @@ jobs:
 
     steps:
     - name: Install apm (with Atom)
-      # https://flight-manual.atom.io/getting-started/sections/installing-atom/#debian-and-ubuntu-debapt
       env:
         DEB_FILE: atom-amd64.deb
       run: |
         wget -nv -O "$DEB_FILE" https://atom.io/download/deb &&
         sudo apt -q install "./$DEB_FILE"
         apm --version
-    - run: ls -a
 
     - name: Checkout repo
       uses: actions/checkout@28c7f3d2b5162b5ddd3dfd9a45aa55eaf396478b # v2.3.1
       with:
-        path: repo # Does this cd automatically??
-        submodules: true
-    - run: |
-        cd ./repo
+        path: repo
+
+    - name: List files in repo
+      working-directory: ./repo
+      run: |
         ls -a
-    - run: apm link
+
+    - name: Try node shell
+      env:
+        GH_REF: ${{ github.ref }}
+      shell: node {0}
+      run: |
+        console.log(process.env.GH_REF)
 
     # - name: Setup Node.js environment
     #   uses: actions/setup-node@44c9c187283081e4e88b54b0efad9e9d468165a4 # v1.4.2

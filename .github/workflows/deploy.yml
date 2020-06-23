@@ -11,11 +11,11 @@ jobs:
     steps:
     - name: Install apm (with Atom)
       env:
-        DEB_FILE: atom-amd64.deb
+        TEMP_DEB: atom-amd64.deb
       run: |
-        wget -nv -O "$DEB_FILE" https://atom.io/download/deb &&
-        sudo apt -qq install "./$DEB_FILE"
-        rm "$DEB_FILE"
+        wget -nv -O "$TEMP_DEB" https://atom.io/download/deb &&
+        sudo apt -qq install "./$TEMP_DEB"
+        rm "$TEMP_DEB"
         apm --version
 
     - name: Checkout repo

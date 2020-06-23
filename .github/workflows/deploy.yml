@@ -12,11 +12,13 @@ jobs:
 
     steps:
     - name: Install apm (with Atom)
+      # https://flight-manual.atom.io/getting-started/sections/installing-atom/#debian-and-ubuntu-debapt
       env:
         DEB_FILE: atom-amd64.deb
       run: |
         wget -nv -O "$DEB_FILE" https://atom.io/download/deb &&
         sudo dpkg -i "$DEB_FILE"
+        sudo apt-get -f install
         apm --version
     - run: ls -a
 

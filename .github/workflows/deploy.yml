@@ -7,8 +7,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # env:
-    #   ATOM_DIR:
 
     steps:
     - name: Install apm (with Atom)
@@ -16,16 +14,14 @@ jobs:
         DEB_FILE: atom-amd64.deb
       run: |
         wget -nv -O "$DEB_FILE" https://atom.io/download/deb &&
-        sudo apt -q install "./$DEB_FILE"
+        sudo apt -qq install "./$DEB_FILE"
+        rm "$DEB_FILE"
         apm --version
 
     - name: Checkout repo
       uses: actions/checkout@28c7f3d2b5162b5ddd3dfd9a45aa55eaf396478b # v2.3.1
-      with:
-        path: repo
 
     - name: List files in repo
-      working-directory: ./repo
       run: |
         ls -a
 
@@ -35,13 +31,3 @@ jobs:
       shell: node {0}
       run: |
         console.log(process.env.GH_REF)
-
-    # - name: Setup Node.js environment
-    #   uses: actions/setup-node@44c9c187283081e4e88b54b0efad9e9d468165a4 # v1.4.2
-    #   with:
-    #     node-version: '12.x'
-
-    # - name: Check release version matches package.json
-    #   run: node ./.github/bin/check-package-version ${{ github.ref }}
-
-

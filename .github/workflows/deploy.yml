@@ -25,9 +25,30 @@ jobs:
       run: |
         ls -a
 
-    - name: Try node shell
+    - name: Check release version matches package.json
       env:
         GH_REF: ${{ github.ref }}
       shell: node {0}
       run: |
-        console.log(process.env.GH_REF)
+        try {
+          const matches = process.env.GH_REF.match(/refs\/tags\/v(.+)/);
+          if (matches) {
+            const releaseVer = matches[1];
+            const packageVer = JSON.parse(fs.readFileSync('package.json')).version;
+            if (releaseVer === packageVer) {
+              console.log('Version: ${releaseVer}');
+            } else {
+              setFailed(`Release version (${releaseVer}) does not match package.json version (${packageVer})`);
+            }
+          } else {
+            throw new Error(`No tag detected in ref '${ref}'`);
+          }
+        } catch (error) {
+          setFailed(error);
+        }
+
+        function setFailed(err) {
+          err = err instanceof Error ? err.toString() : err;
+          console.log(err);
+          process.exitCode = 1;
+        }

@@ -7,8 +7,13 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+
+
     
     steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2.3.1
+
     - name: Check release version matches package.json
       run: |
         # VERSION_TAG=$(node ./.github/bin/get-version-tag ${{ github.ref }})

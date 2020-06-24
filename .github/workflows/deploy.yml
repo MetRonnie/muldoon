@@ -7,43 +7,22 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-
+    
     steps:
-    - name: Install apm (with Atom)
-      env:
-        TEMP_DEB: atom-amd64.deb
-      run: |
-        wget -nv -O "$TEMP_DEB" https://atom.io/download/deb &&
-        sudo apt -qq install "./$TEMP_DEB"
-        rm "$TEMP_DEB"
-        apm --version
-
-    - name: Checkout repo
-      uses: actions/checkout@28c7f3d2b5162b5ddd3dfd9a45aa55eaf396478b # v2.3.1
-
-    - name: List files in repo
-      run: |
-        ls -a
-
     - name: Check release version matches package.json
-      env:
-        GH_REF: ${{ github.ref }}
-      shell: node {0}
       run: |
-        const matches = process.env.GH_REF.match(/refs\/tags\/v(.+)/);
-        if (matches) {
-          const releaseVer = matches[1];
-          const packageVer = JSON.parse(fs.readFileSync('package.json')).version;
-          if (releaseVer === packageVer) {
-            console.log('Version: ${releaseVer}');
-          } else {
-            setFailed(`Release version (${releaseVer}) does not match package.json version (${packageVer})`);
-          }
-        } else {
-          setFailed(`No tag detected in ref '${process.env.GH_REF}'`);
-        }
+        # VERSION_TAG=$(node ./.github/bin/get-version-tag ${{ github.ref }})
 
-        function setFailed(msg) {
-          console.log(msg);
-          process.exitCode = 1;
-        }
+        package_ver=$( node -pe 'JSON.parse(fs.readFileSync("package.json")).version' )
+        release_ver=$( node -pe 'process.argv[1].match(/refs\/tags\/v(.+)/)[1]' ${{ github.ref }} )
+
+        if [[ package_ver -eq release_ver ]]; then
+          VERSION_TAG="v${release_ver}"
+        else
+          exit 1
+        fi
+    
+    - run: echo "$VERSION_TAG"
+        
+
+        

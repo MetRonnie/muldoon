@@ -16,8 +16,8 @@ jobs:
 
     - name: Check release version matches package.json
       run: |
-        export VERSION_TAG=$( node ./.github/bin/get-version-tag 'refs/tags/v0.0.1' )
-        echo "$VERSION_TAG"
+        tag=$( node ./.github/bin/get-version-tag 'refs/tags/v0.0.1' )
+        echo "::set-env name=VERSION_TAG::$tag"
     
     - run: echo "$VERSION_TAG"
         

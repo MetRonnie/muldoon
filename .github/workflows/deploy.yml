@@ -19,7 +19,7 @@ jobs:
         # VERSION_TAG=$(node ./.github/bin/get-version-tag ${{ github.ref }})
 
         package_ver=$( node -pe 'JSON.parse(fs.readFileSync("package.json")).version' )
-        release_ver=$( node -pe 'process.argv[1].match(/refs\/tags\/v(.+)/)[1]' ${{ github.ref }} )
+        release_ver=$( node -pe 'process.argv[1].match(/refs\/tags\/v(.+)/)[1]' 'refs/tags/v0.0.1' )
 
         if [[ package_ver -eq release_ver ]]; then
           VERSION_TAG="v${release_ver}"

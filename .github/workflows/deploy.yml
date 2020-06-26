@@ -17,4 +17,7 @@ jobs:
     - name: Test mail
       env:
         RECIPIENT: ${{ secrets.EMAIL_ADDRESS }}
-      run: mail -s 'GH Actions test mail' "$RECIPIENT" <<< "${{ runner.os }},\n${{ github.action }},\n${{ github.sha }}"
+      run: |
+        mail -s 'GH Actions test mail' "$RECIPIENT" <<< "${{ runner.os }},\n${{ github.action }},\n${{ github.sha }}"
+        sleep 30
+        mail

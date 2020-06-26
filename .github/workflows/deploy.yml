@@ -16,7 +16,6 @@ jobs:
 
     - name: Test mail
       run: |
-        echo "$(whoami)@$(hostname):$PWD"
-        mail -s 'GH Actions test mail' runner@localhost <<< "${{ runner.os }},\n${{ github.action }},\n${{ github.sha }}"
-        sleep 30
+        mail -s 'GH Actions test mail' runner@localhost <<< "Love from runner@$(hostname); commit ${{ github.sha }}"
+        sleep 5
         mail

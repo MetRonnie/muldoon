@@ -15,9 +15,8 @@ jobs:
       run: sudo apt-get install mailutils
 
     - name: Test mail
-      env:
-        RECIPIENT: ${{ secrets.EMAIL_ADDRESS }}
       run: |
-        mail -s 'GH Actions test mail' "$RECIPIENT" <<< "${{ runner.os }},\n${{ github.action }},\n${{ github.sha }}"
+        echo "$(whoami)@$(hostname):$PWD"
+        mail -s 'GH Actions test mail' runner@localhost <<< "${{ runner.os }},\n${{ github.action }},\n${{ github.sha }}"
         sleep 30
         mail

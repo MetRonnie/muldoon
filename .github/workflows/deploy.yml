@@ -24,14 +24,15 @@ jobs:
         REF=${{ github.ref }}
         TAG=${REF/'refs/tags/'/}
 
-        # git checkout -b "test"
-        cp README.md copy.md
+        git checkout -b "release"
+        echo "Ah ah ah! You didnt say the magic word" >> copy.md
         git add -A
-        git commit -a -m "CI release" -m "Workflow: ${{ github.workflow }}. Run number: ${{ github.run_number }}."
+        git commit -m "CI release" -m "Workflow: ${{ github.workflow }}" -m "Run number: ${{ github.run_number }}"
 
         # Print tags info:
         git for-each-ref refs/tags
 
+        git push -f origin release
         # Set origin tag to this commit:
         git push -f origin HEAD:${{ github.ref }}
 

@@ -15,13 +15,19 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v2.3.1
 
+    - name: Configure git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
     - run: |
         REF=${{ github.ref }}
         TAG=${REF/'refs/tags/'/}
 
         # git checkout -b "test"
         cp README.md copy.md
-        git commit -a -m "CI release" -m "Commited by GitHub Actions. Workflow: ${{ github.workflow }}. Run number: ${{ github.run_number }}."
+        git add -A
+        git commit -a -m "CI release" -m "Workflow: ${{ github.workflow }}. Run number: ${{ github.run_number }}."
 
         # Print tags info:
         git for-each-ref refs/tags

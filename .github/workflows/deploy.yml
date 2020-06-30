@@ -25,7 +25,7 @@ jobs:
         TAG=${REF/'refs/tags/'/}
 
         git checkout -b "release"
-        echo "Ah ah ah! You didnt say the magic word" >> copy.md
+        echo "Ah ah ah! You didnt say the magic word" >> README.md
         git add -A
         git commit -m "CI release" -m "Workflow: ${{ github.workflow }}" -m "Run number: ${{ github.run_number }}"
 

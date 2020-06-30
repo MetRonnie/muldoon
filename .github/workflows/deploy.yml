@@ -1,6 +1,8 @@
 name: Deploy
 
-on: push
+on:
+  release:
+    types: [published]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -9,41 +11,21 @@ jobs:
     timeout-minutes: 5
 
     steps:
-    - name: Install apm (with Atom)
-      env:
-        TEMP_DEB: atom-amd64.deb
-      run: |
-        wget -nv -O "$TEMP_DEB" https://atom.io/download/deb &&
-        sudo apt -qq install "./$TEMP_DEB"
-        rm "$TEMP_DEB"
-        apm --version
 
     - name: Checkout repo
-      uses: actions/checkout@28c7f3d2b5162b5ddd3dfd9a45aa55eaf396478b # v2.3.1
+      uses: actions/checkout@v2.3.1
 
-    - name: List files in repo
-      run: |
-        ls -a
+    - run: |
+        REF=${{ github.ref }}
+        TAG=${REF/'refs/tags/'/}
 
-    - name: Check release version matches package.json
-      env:
-        GH_REF: ${{ github.ref }}
-      shell: node {0}
-      run: |
-        const matches = process.env.GH_REF.match(/refs\/tags\/v(.+)/);
-        if (matches) {
-          const releaseVer = matches[1];
-          const packageVer = JSON.parse(fs.readFileSync('package.json')).version;
-          if (releaseVer === packageVer) {
-            console.log('Version: ${releaseVer}');
-          } else {
-            setFailed(`Release version (${releaseVer}) does not match package.json version (${packageVer})`);
-          }
-        } else {
-          setFailed(`No tag detected in ref '${process.env.GH_REF}'`);
-        }
+        # git checkout -b "test"
+        cp README.md copy.md
+        git commit -a -m "CI release" -m "Commited by GitHub Actions. Workflow: ${{ github.workflow }}. Run number: ${{ github.run_number }}."
 
-        function setFailed(msg) {
-          console.log(msg);
-          process.exitCode = 1;
-        }
+        # Print tags info:
+        git for-each-ref refs/tags
+
+        # Set origin tag to this commit:
+        git push -f origin HEAD:${{ github.ref }}
+

@@ -1,0 +1,39 @@
+name: Comment on PR
+
+on:
+  pull_request:
+    branches: [master]
+    paths: ['foo.md']
+
+jobs:
+  pr-comment:
+    if: startsWith(github.head_ref, 'prepare-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2.3.1
+      # with:
+      #   # For an on-PR workflow, it would normally checkout a merge commit of the PR branch
+      #   # into the base branch. Instead we want the tip of the PR branch:
+      #   ref: ${{ github.head_ref }}
+
+    # - name: Configure git
+    #   run: |
+    #     git config --global user.name "github-actions[bot]"
+    #     git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+    - name: Deliberately fail workflow
+      run: exit 1
+
+    - name: Comment on PR
+      if: always()
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        comment_json=$( node .github/pr-comment.js "${{ github.workflow }}" "${{ github.head_ref }}" )
+        curl -X POST \
+          ${{ github.event.pull_request.comments_url }} \
+          -H "authorization: Bearer ${GH_TOKEN}" \
+          -H "content-type: application/json" \
+          --data "$comment_json"

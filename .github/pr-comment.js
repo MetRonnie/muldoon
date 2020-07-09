@@ -1,4 +1,4 @@
-const env = process.env
+const env = process.env;
 
 const body = `
  :test_tube: **Experiment: nothing below is actually true**
@@ -8,7 +8,9 @@ const body = `
 (This is because the name of the PR branch, \`${env.HEAD_REF}\`, starts with \`prepare-\`, and the \`foo.md\` file has been modified)
 
 **Checklist:**
-- [ ] Foo
+- ${env.ASDF.includes("3.0.1") ? "✔️ Version number is correct" : "⚠️ Version number appears incorrect"}
+- ${env.ASDF.includes("MEOW MEOW") ? "✔️ Something is okay" : "⚠️ Something is not okay"}
 `;
+
 
 console.log(JSON.stringify({"body": body}))

@@ -16,17 +16,17 @@ jobs:
 
     - name: Export $ASDF
       run: |
-        ASDF=34
+        ASDF="3.0.1"
         echo "::set-env name=ASDF::$ASDF"
         echo "$ASDF"
 
     - name: Deliberately fail workflow
       run: |
-        msg="Foo bar
-          baz"
-        echo "::warning ::$msg"
+        msg="Foo bar "
+        msg+="baz"
+        echo "::warning :: $msg"
         echo "Open the pod bay doors, Hal."
-        echo "::error ::I'm sorry, Dave. I'm afraid I can't do that."
+        echo "::error :: I'm sorry, Dave. I'm afraid I can't do that."
         exit 1
 
     - name: Comment on PR
@@ -36,12 +36,11 @@ jobs:
         WORKFLOW: ${{ github.workflow }}
         HEAD_REF: ${{ github.head_ref }}
       run: |
-        echo "That env var from prev step: $ASDF"
-
         comment_json=$( node .github/pr-comment.js )
 
         curl -X POST \
           ${{ github.event.pull_request.comments_url }} \
           -H "content-type: application/json" \
+          -H "authorization: Bearer ${GH_TOKEN}" \
           --data "$comment_json" \
           --fail

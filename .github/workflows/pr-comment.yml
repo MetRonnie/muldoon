@@ -10,6 +10,8 @@ jobs:
     if: startsWith(github.head_ref, 'prepare-')
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2.3.1
@@ -20,27 +22,55 @@ jobs:
         echo "::set-env name=ASDF::$ASDF"
         echo "$ASDF"
 
-    - name: Deliberately fail workflow
+    - name: Check milestone
+      shell: node {0}
       run: |
-        msg="Foo bar "
-        msg+="baz"
-        echo "::warning :: $msg"
-        echo "Open the pod bay doors, Hal."
-        echo "::error :: I'm sorry, Dave. I'm afraid I can't do that."
-        exit 1
+        const {exec} = require('child_process');
+        const env = process.env;
+        const request = `curl https://api.github.com/repos/${{ github.repository }}/milestones \
+          -H "authorization: Bearer ${env.GH_TOKEN}" \
+          --silent --fail`;
+        exec(request, (err, stdout, stderr) => {
+          if (err) throw err;
+          if (stderr) throw stderr;
+          const response_arr = JSON.parse(stdout);
+          for (const milestone of response_arr) {
+            if (milestone.title.includes(env.ASDF)) {
+              console.log(`::set-env name=MILESTONE_OPEN_ISSUES::${milestone.open_issues}`);
+              return;
+            }
+          }
+          console.log(response_arr);
+          throw `Could not find milestone matching '${env.ASDF}'`;
+        });
 
-    - name: Comment on PR
-      if: always()
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        WORKFLOW: ${{ github.workflow }}
-        HEAD_REF: ${{ github.head_ref }}
-      run: |
-        comment_json=$( node .github/pr-comment.js )
+    - run: echo "$MILESTONE_OPEN_ISSUES"
 
-        curl -X POST \
-          ${{ github.event.pull_request.comments_url }} \
-          -H "content-type: application/json" \
-          -H "authorization: Bearer ${GH_TOKEN}" \
-          --data "$comment_json" \
-          --fail
+    # export RESPONSE=$( curl -X GET \
+    #   "https://api.github.com/repos/${{ github.repository }}/milestones" \
+    #   -H "authorization: Bearer ${GH_TOKEN}" \
+    #   --fail)
+    # node -e "(() => {
+    #   for (const milestone of JSON.parse(response)) {
+    #     if (milestone.title === env.ASDF) {
+    #       console.log(`::set-env name=MILESTONE_OPEN_ISSUES::${milestone.open_issues}`);
+    #       return;
+    #     }
+    #   }
+    #   throw `Could not find milestone matching '${env.ASDF}'`;
+    # })();"
+
+
+    # - name: Comment on PR
+    #   if: always()
+    #     WORKFLOW: ${{ github.workflow }}
+    #     HEAD_REF: ${{ github.head_ref }}
+    #   run: |
+    #     comment_json=$( node .github/pr-comment.js )
+
+    #     curl -X POST \
+    #       ${{ github.event.pull_request.comments_url }} \
+    #       -H "content-type: application/json" \
+    #       -H "authorization: Bearer ${GH_TOKEN}" \
+    #       --data "$comment_json" \
+    #       --fail

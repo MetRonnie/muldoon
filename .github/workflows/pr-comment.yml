@@ -3,7 +3,7 @@ name: Comment on PR
 on:
   pull_request:
     branches: [master]
-    paths: ['foo.md']
+    paths: ['__init__.py']
 
 jobs:
   pr-comment:
@@ -12,15 +12,25 @@ jobs:
     timeout-minutes: 5
     env:
       REPOSITORY: ${{ github.repository }}
+      PACKAGE_PATH: '.'
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2.3.1
 
-    - name: Export $ASDF
+    - name: Check version number
       run: |
-        ASDF="3.0.1"
-        echo "::set-env name=ASDF::$ASDF"
-        echo "$ASDF"
+        # Extract `__version__ = "x.y.z"` number:
+        pattern="__version__ ?= ?['\"]\K.*(?=['\"])"
+        INIT_VERSION=$( grep -oP "${pattern}" "${PACKAGE_PATH}/__init__.py" )
+        echo "::set-env name=INIT_VERSION::$INIT_VERSION"
+
+        if [[ -z "$INIT_VERSION" ]]; then
+          echo "::error :: Version number not found in ${PACKAGE_PATH}/__init__.py"
+          exit 1
+        fi
+        if ! grep -qF "$INIT_VERSION" <<< "${{ github.head_ref }}"; then
+          echo "::warning :: Version number in __init__.py (${INIT_VERSION}) does not match version number in PR branch name (${{ github.head_ref }})"
+        fi
 
     - name: Check milestone
       shell: node {0}
@@ -29,46 +39,25 @@ jobs:
       run: |
         const {exec} = require('child_process');
         const env = process.env;
-        const setEnv = (name, value) => { console.log(`::set-env name=${name}::${value}`) };
 
         const request = `curl https://api.github.com/repos/${env.REPOSITORY}/milestones \
           -H "authorization: Bearer $GH_TOKEN" \
           --silent --fail`;
+          // Don't use env.GH_TOKEN above as that might print in log.
         exec(request, (err, stdout, stderr) => {
           if (err) throw err;
           if (stderr) throw stderr;
           const response_arr = JSON.parse(stdout);
           for (const milestone of response_arr) {
-            if (milestone.title.includes(env.ASDF)) {
-              setEnv("MILESTONE_NUMBER", milestone.number);
-              setEnv("MILESTONE_TITLE", milestone.title);
-              setEnv("MILESTONE_OPEN_ISSUES", milestone.open_issues);
+            if (milestone.title.includes(env.INIT_VERSION)) {
+              console.log(`::set-env name=MILESTONE_JSON::${JSON.stringify(milestone)}`)
+              console.log(`Title: ${milestone.title}, open issues: ${milestone.open_issues}`);
               return;
             }
           }
+          console.log(`::warning :: Could not find milestone matching "${env.INIT_VERSION}"`);
           console.log(response_arr);
-          throw `::error :: Could not find milestone matching '${env.ASDF}'`;
         });
-
-    - run: echo "$MILESTONE_OPEN_ISSUES"
-
-    # export RESPONSE=$( curl -X GET \
-    #   "https://api.github.com/repos/${{ github.repository }}/milestones" \
-    #   -H "authorization: Bearer ${GH_TOKEN}" \
-    #   --fail)
-    # node -e "(() => {
-    #   for (const milestone of JSON.parse(response)) {
-    #     if (milestone.title === env.ASDF) {
-    #       console.log(`::set-env name=MILESTONE_OPEN_ISSUES::${milestone.open_issues}`);
-    #       return;
-    #     }
-    #   }
-    #   throw `Could not find milestone matching '${env.ASDF}'`;
-    # })();"
-
-
-    # - name: Deliberately fail
-    #   run: exit 1
 
     - name: Comment on PR
       if: always()

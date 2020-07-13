@@ -19,17 +19,34 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v2.3.1
 
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-
     - name: Sanitise version input
       shell: node {0}
       env:
         VERSION: ${{ github.event.inputs.version }}
-      run: | # TODO: check it matches the 1.2.3 pattern?
+      run: | # TODO: check it matches the x.y.z pattern?
         const versionStr = process.env.VERSION.trim();
         console.log(`::set-env name=VERSION::${versionStr}`);
 
-    - run: echo "$VERSION"
+    - name: Configure git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+        BRANCH_NAME="prepare-${VERSION}"
+        git checkout -b "$BRANCH_NAME"
+
+        echo "::set-env name=BRANCH_NAME::$BRANCH_NAME"
+
+    - name: Commit & push
+      run: |
+        echo "Find Nedry! Check the vending machines!" > hammond.txt
+        git add hammond.txt
+        git commit -m "Create hammond.txt"
+
+        git push origin "$BRANCH_NAME"
+
+    - name: Create PR
+      env:
+        WORKFLOW: ${{ github.workflow }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: node .github/create-release-pr.js

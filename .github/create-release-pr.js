@@ -50,9 +50,7 @@ const payload = JSON.stringify({
     title: `Prepare release: ${env.VERSION}`,
     head: env.BRANCH_NAME,
     base: env.DEFAULT_BRANCH,
-    body: bodyText,
-    milestone: 1,
-    assignees: ['MetRonnie']
+    body: bodyText
 });
 
 const request = `curl -X POST \
@@ -63,13 +61,40 @@ const request = `curl -X POST \
     --fail`;
 
 exec(request, (err, stdout, stderr) => {
+    handleExec(request, err, stdout, stderr);
+    response = JSON.parse(stdout);
+    setMilestoneAndAssignee(response.number);
+});
+
+
+function setMilestoneAndAssignee(prNumber) {
+    // Cannot set them when creating the PR unfortunately
+    const payload = JSON.stringify({
+        milestone: 1,
+        assignees: ['MetRonnie']
+    });
+
+    const request = `curl -X PATCH \
+        https://api.github.com/repos/${env.REPOSITORY}/issues/${prNumber} \
+        -H "authorization: Bearer $GH_TOKEN" \
+        -H "content-type: application/json" \
+        --data '${payload}' \
+        --fail`;
+
+    exec(request, (err, stdout, stderr) => {
+        handleExec(request, err, stdout, stderr);
+    });
+}
+
+function handleExec(cmd, err, stdout, stderr) {
     if (err) throw err;
     console.log('=====================  cmd  ======================');
-    console.log(request);
+    console.log(cmd);
     if (stderr) {
         console.log('===================== stderr =====================');
         console.log(stderr);
     };
     console.log('===================== stdout =====================');
     console.log(stdout);
-});
+    console.log(' ');
+}

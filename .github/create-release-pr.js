@@ -11,28 +11,33 @@ const milestoneText = () => {
         if (parseInt(milestone.open_issues) === 0) {
             checkbox = "[x]";
         }
-        note = `${milestone.open_issues} other open issues/PRs on [milestone ${milestone.title}](https://github.com/${env.REPOSITORY}/milestone/${milestone.number})`;
+        note = `ℹ️ ${milestone.open_issues} other open issues/PRs on [milestone ${milestone.title}](https://github.com/${env.REPOSITORY}/milestone/${milestone.number}) at time of PR creation`;
     }
-    return `${checkbox} Milestone complete? ${note}`;
+    return `${checkbox} Milestone complete?\n  ${note}`;
 };
 
 const bodyText = `
 **This PR was created by the \`${env.WORKFLOW}\` workflow, triggered by @${env.AUTHOR}**
 
 #### Tests:
-✔️ \`setup.py\` bdist test
+✔️ \`setup.py\` bdist build test
 
 #### Checklist:
 - ${milestoneText()}
+
 - [ ] Changelog up-to-date?
-- [ ] Contributors up-to-date in README?
-- [ ] \`.mailmap\` file up-to-date?
+  Examine pull requests made since the last release
+
+- [ ] All contributors listed?
+
+- [ ] \`.mailmap\` file correct?
+  In particular, check for duplication
 `;
 
 const payload = JSON.stringify({
     title: `Prepare release: ${env.VERSION}`,
     head: env.BRANCH_NAME,
-    base: env.DEFAULT_BRANCH,
+    base: 'master',
     body: bodyText
 });
 
@@ -48,22 +53,6 @@ const pr = JSON.parse(exec(request));
 setMilestoneAndAssignee(pr.number);
 
 
-function setMilestoneAndAssignee(prNumber) {
-    // Cannot set them when creating the PR unfortunately
-    const payload = JSON.stringify({
-        milestone: milestone ? milestone.number : undefined,
-        assignees: [env.AUTHOR]
-    });
-
-    const request = `curl -X PATCH \
-        https://api.github.com/repos/${env.REPOSITORY}/issues/${prNumber} \
-        -H "authorization: Bearer $GH_TOKEN" \
-        -H "content-type: application/json" \
-        --data '${payload}' \
-        ${curlOpts}`;
-
-    exec(request);
-}
 
 function getMilestone() {
     const request = `curl -X GET \
@@ -89,14 +78,29 @@ function getMilestone() {
     return;
 }
 
+function setMilestoneAndAssignee(prNumber) {
+    // Cannot set them when creating the PR unfortunately
+    const payload = JSON.stringify({
+        milestone: milestone ? milestone.number : undefined,
+        assignees: [env.AUTHOR]
+    });
+
+    const request = `curl -X PATCH \
+        https://api.github.com/repos/${env.REPOSITORY}/issues/${prNumber} \
+        -H "authorization: Bearer $GH_TOKEN" \
+        -H "content-type: application/json" \
+        --data '${payload}' \
+        ${curlOpts}`;
+
+    exec(request);
+}
+
 function exec(cmd) {
     let stdout;
     try {
         stdout = execSync(cmd, {stdio: 'pipe', encoding: 'utf8'});
     } catch (err) {
-        if (err.stderr) {
-            console.log(`::error :: ${stderr}`);
-        }
+        console.log(`::error :: ${err.stderr ? err.stderr : 'Error executing command'}`);
         throw err.message;
     }
     console.log('=====================  cmd  ======================');

@@ -1,7 +1,8 @@
 name: Publish release
 
 on: # merge release PR (effectively)
-  push:
+  pull_request:
+    types: [closed]
     branches: [master]
     paths: ['hammond.txt']
 

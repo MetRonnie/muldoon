@@ -1,6 +1,6 @@
-const {exec} = require('child_process');
+const {execSync} = require('child_process');
 const env = process.env;
-const curlOpts = '--silent --fail'
+const curlOpts = '--silent --fail --show-error'
 
 const milestone = getMilestone();
 
@@ -44,11 +44,8 @@ const request = `curl -X POST \
     --fail`;
     // Don't use env.GH_TOKEN above as that might print in log.
 
-exec(request, (err, stdout, stderr) => {
-    handleExecResult(request, err, stdout, stderr);
-    const pr = JSON.parse(stdout);
-    setMilestoneAndAssignee(pr.number);
-});
+const pr = JSON.parse(exec(request));
+setMilestoneAndAssignee(pr.number);
 
 
 function setMilestoneAndAssignee(prNumber) {
@@ -65,9 +62,7 @@ function setMilestoneAndAssignee(prNumber) {
         --data '${payload}' \
         ${curlOpts}`;
 
-    exec(request, (err, stdout, stderr) => {
-        handleExecResult(request, err, stdout, stderr);
-    });
+    exec(request);
 }
 
 function getMilestone() {
@@ -76,36 +71,37 @@ function getMilestone() {
         -H "authorization: Bearer $GH_TOKEN" \
         ${curlOpts}`;
 
-    let milestone = undefined;
-    exec(request, (err, stdout, stderr) => {
-        try {
-            handleExecResult(request, err, stdout, stderr);
-        } catch (err) {
-            console.log(`::warning :: Error finding milestone`);
-            console.log(err, '\n');
-            return;
+    let response;
+    try {
+        response = JSON.parse(exec(request));
+    } catch (err) {
+        console.log(`::warning :: Error getting milestones`);
+        console.log(err, '\n');
+        return;
+    }
+    for (const milestone of response) {
+        if (milestone.title.includes(env.VERSION)) {
+            console.log('Found milestone:', milestone.title, '\n');
+            return milestone;
         }
-        const response = JSON.parse(stdout);
-        for (milestone of response) {
-            if (milestone.title.includes(env.VERSION)) {
-                console.log('Found milestone:', milestone.title, '\n');
-                return;
-            }
-        }
-        console.log(`::warning :: Could not find milestone matching "${env.VERSION}"`);
-        milestone = undefined;
-    });
-    return milestone;
+    }
+    console.log(`::warning :: Could not find milestone matching "${env.VERSION}"`);
+    return;
 }
 
-function handleExecResult(cmd, err, stdout, stderr) {
-    if (err) throw err;
+function exec(cmd) {
+    let stdout;
+    try {
+        stdout = execSync(cmd, {stdio: 'pipe', encoding: 'utf8'});
+    } catch (err) {
+        if (err.stderr) {
+            console.log(`::error :: ${stderr}`);
+        }
+        throw err.message;
+    }
     console.log('=====================  cmd  ======================');
     console.log(cmd);
-    if (stderr) {
-        console.log('===================== stderr =====================');
-        console.log(stderr);
-    };
     console.log('===================== stdout =====================');
     console.log(stdout, '\n');
+    return stdout;
 }

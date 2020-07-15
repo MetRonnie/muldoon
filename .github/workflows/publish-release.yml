@@ -11,10 +11,11 @@ env:
 
 jobs:
   create-release-pr:
+    # if: github.event
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - run: echo "${{ toJson(github.event) }}"
+      - run: echo '${{ toJson(github.event) }}'
     # - name: Checkout repo
     #   uses: actions/checkout@v2.3.1
 

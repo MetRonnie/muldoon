@@ -1,5 +1,5 @@
 const {execSync} = require('child_process');
-const env = process.env;
+const {env} = process;
 const curlOpts = '--silent --fail --show-error'
 
 const milestone = getMilestone();
@@ -27,6 +27,7 @@ const bodyText = `
 
 - [ ] Changelog up-to-date?
   Examine pull requests made since the last release
+  "Released on" date automatically set: ${env.CHANGELOG_DATE ? `✔️ \`${env.CHANGELOG_DATE}\`` : '⚠️ failed'}
 
 - [ ] All contributors listed?
 
@@ -36,18 +37,18 @@ const bodyText = `
 
 const payload = JSON.stringify({
     title: `Prepare release: ${env.VERSION}`,
-    head: env.BRANCH_NAME,
-    base: 'master',
+    head: env.HEAD_REF,
+    base: env.BASE_REF,
     body: bodyText
 });
 
 const request = `curl -X POST \
     https://api.github.com/repos/${env.REPOSITORY}/pulls \
-    -H "authorization: Bearer $GH_TOKEN" \
+    -H "authorization: Bearer $GITHUB_TOKEN" \
     -H "content-type: application/json" \
     --data '${payload}' \
-    --fail`;
-    // Don't use env.GH_TOKEN above as that might print in log.
+    ${curlOpts}`;
+    // Don't use env.GITHUB_TOKEN above as that might print in log.
 
 const pr = JSON.parse(exec(request));
 setMilestoneAndAssignee(pr.number);
@@ -57,14 +58,14 @@ setMilestoneAndAssignee(pr.number);
 function getMilestone() {
     const request = `curl -X GET \
         https://api.github.com/repos/${env.REPOSITORY}/milestones \
-        -H "authorization: Bearer $GH_TOKEN" \
+        -H "authorization: Bearer $GITHUB_TOKEN" \
         ${curlOpts}`;
 
     let response;
     try {
         response = JSON.parse(exec(request));
     } catch (err) {
-        console.log(`::warning :: Error getting milestones`);
+        console.log(`::warning:: Error getting milestones`);
         console.log(err, '\n');
         return;
     }
@@ -74,7 +75,7 @@ function getMilestone() {
             return milestone;
         }
     }
-    console.log(`::warning :: Could not find milestone matching "${env.VERSION}"`);
+    console.log(`::warning:: Could not find milestone matching "${env.VERSION}"`);
     return;
 }
 
@@ -87,7 +88,7 @@ function setMilestoneAndAssignee(prNumber) {
 
     const request = `curl -X PATCH \
         https://api.github.com/repos/${env.REPOSITORY}/issues/${prNumber} \
-        -H "authorization: Bearer $GH_TOKEN" \
+        -H "authorization: Bearer $GITHUB_TOKEN" \
         -H "content-type: application/json" \
         --data '${payload}' \
         ${curlOpts}`;
@@ -100,12 +101,14 @@ function exec(cmd) {
     try {
         stdout = execSync(cmd, {stdio: 'pipe', encoding: 'utf8'});
     } catch (err) {
-        console.log(`::error :: ${err.stderr ? err.stderr : 'Error executing command'}`);
+        console.log(`::error:: ${err.stderr ? err.stderr : 'Error executing command'}`);
         throw err.message;
     }
+    console.log('::group name=exec_debug_info::')
     console.log('=====================  cmd  ======================');
     console.log(cmd);
     console.log('===================== stdout =====================');
-    console.log(stdout, '\n');
+    console.log(stdout);
+    console.log('::endgroup::');
     return stdout;
 }

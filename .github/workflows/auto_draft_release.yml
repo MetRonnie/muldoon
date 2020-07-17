@@ -1,4 +1,4 @@
-name: Release stage 2 - auto draft release
+name: Release pt 2 - auto draft release
 
 on:
   pull_request:  # types AND paths

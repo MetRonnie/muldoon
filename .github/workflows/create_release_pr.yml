@@ -1,4 +1,4 @@
-name: Release stage 1 - create release PR
+name: Release pt 1 - create release PR
 
 on:
   workflow_dispatch:
@@ -95,7 +95,7 @@ jobs:
     - name: Commit & push
       id: push
       run: |
-        git status; echo " "
+        git status
         git commit -m "Prepare release ${VERSION}" -m "Workflow: ${{ github.workflow}}, run: ${{ github.run_number }}"
         git push origin "$HEAD_REF"
 
@@ -105,7 +105,11 @@ jobs:
         WORKFLOW: ${{ github.workflow }}
         AUTHOR: ${{ github.event.sender.login }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: node .github/create_release_pr.js
+      run: node .github/create_release_asdsadpr.js
+
+    - if: always()
+      run: |
+        echo "create-pr: ${{ steps.create-pr.outcome }}, push: ${{ steps.push.outcome }}"
 
     - name: (On fail) Delete failed PR branch on origin, if it was pushed
       if: steps.create-pr.outcome != 'success' && steps.push.outcome == 'success'

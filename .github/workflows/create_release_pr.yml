@@ -21,11 +21,11 @@ jobs:
           echo "The value is: $FOO"
 
       - name: Run if foo
-        if: github.event.inputs.foo
+        if: ${{ github.event.inputs.foo == true }}
         run: |
           echo "Shoot her! Shoooot hhhhher!!"
 
       - name: Don't run if foo
-        if: '! github.event.inputs.foo'
+        if: ${{ github.event.inputs.foo != true }}
         run: |
           echo "Shoot her! Shoooot hhhhher!!"

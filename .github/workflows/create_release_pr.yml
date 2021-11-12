@@ -7,7 +7,7 @@ on:
         description: Whether to foo
         type: boolean
         required: false
-        default: true
+        default: false
 
 jobs:
   thingy:

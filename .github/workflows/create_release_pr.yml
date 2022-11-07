@@ -36,21 +36,21 @@ jobs:
         python-version: '3.x'
 
     - name: Create & checkout PR branch
-      uses: cylc/release-actions/stage-1/checkout-pr-branch@v1
+      uses: MetRonnie/release-actions/stage-1/checkout-pr-branch@gh-cli
 
     - name: Set the package version
-      uses: cylc/release-actions/stage-1/set-python-package-version@v1
+      uses: MetRonnie/release-actions/stage-1/set-python-package-version@gh-cli
       with:
         init-file: ${{ env.INIT_FILE }}
         pypi-package-name: metomi-isodatetime
 
     - name: Update "released on" date in changelog
       continue-on-error: true
-      uses: cylc/release-actions/stage-1/update-changelog-release-date@v1
+      uses: MetRonnie/release-actions/stage-1/update-changelog-release-date@gh-cli
       with:
         changelog-file: 'CHANGES.md'
 
     - name: Create pull request
-      uses: cylc/release-actions/stage-1/create-release-pr@v1
+      uses: MetRonnie/release-actions/stage-1/create-release-pr@gh-cli
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

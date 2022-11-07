@@ -11,7 +11,7 @@ ones in. -->
 
 --------------------------------------------------------------------------------
 
-## isodatetime 2.1.0 (<span actions:bind='release-date'>Upcoming, 2020</span>)
+## isodatetime 2.1.0 (<span actions:bind='release-date'>Released 2022-11-07</span>)
 
 This is the 15th release of isodatetime. Requires Python 3.5+.
 

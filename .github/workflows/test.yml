@@ -1,0 +1,13 @@
+name: Test
+
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build: ['A', 'B']
+      max-parallel: 1
+    steps:
+      - run: echo $GITHUB_RUN_ID

@@ -5,9 +5,11 @@ on: [workflow_dispatch]
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        build: ['A', 'B']
-      max-parallel: 1
     steps:
-      - run: echo $GITHUB_RUN_ID
+      - uses: actions/checkout@v3
+        with:
+          repository: cylc/cylc-uiserver
+
+      - uses: MetRonnie/release-actions/build-python-package@patch
+        with:
+          check-dependencies: false

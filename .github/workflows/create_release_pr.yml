@@ -2,14 +2,6 @@ name: Release pt 1 - create release PR
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version number of the form 1.2.3'
-        required: true
-      branch:
-        description: 'The branch to open the PR against'
-        required: false
-        default: 'master'
 
 jobs:
   create-release-pr:
@@ -26,12 +18,12 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.x'
+        python-version: '3.9'
 
     - name: Test build
       uses: cylc/release-actions/build-python-package@v1
 
     - name: Generate changelog
       run: |
-        python3 -m pip install towncrier
+        python3 -m pip install -e .[tests]
         towncrier build --yes

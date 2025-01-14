@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools >= 60"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "muldoon"
+readme = "README.md"
+requires-python = ">=3.7"
+dynamic = ["version"]
+
+
+[tool.setuptools]
+platforms = ["any"]
+
+
+[tool.setuptools.dynamic]
+version = {attr = "metomi.isodatetime.__version__"}
+
+
+[tool.setuptools.packages.find]
+include = ["metomi*"]

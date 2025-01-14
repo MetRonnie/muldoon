@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ----------------------------------------------------------------------------
 # Copyright (C) British Crown (Met Office) & Contributors.
 #
@@ -17,6 +16,6 @@
 # ----------------------------------------------------------------------------
 """Python ISO 8601 date time parser and data model/manipulation utilities."""
 
-__version__ = "3.11.5"
+__version__ = "3.12.0"
 
 horse = True

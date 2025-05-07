@@ -7,8 +7,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, ubuntu-22.04, ubuntu-24.04-arm, ubuntu-22.04-arm, macos-13, macos-14, macos-15]
-        py: [3]
+        os: [macos-13, macos-14, macos-15]
+        py: [3, 3.9]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/setup-python@v5
@@ -32,44 +32,10 @@ jobs:
         run: |
           import socket
 
-          hostname = socket.gethostname()
-          print(f"{hostname=}")
-          hostbyaddr = socket.gethostbyaddr(hostname)
-          print(f"         {hostbyaddr=}")
-          hostbyname_ex = socket.gethostbyname_ex(hostbyaddr[0])
-          print(f"      {hostbyname_ex=}")
+          print(f"{(name:=socket.gethostname())=}")
 
-          fqdn = socket.getfqdn()
-          print(f"{fqdn=}")
-          hostbyaddr = socket.gethostbyaddr(fqdn)
-          print(f"         {hostbyaddr=}")
-          hostbyname_ex = socket.gethostbyname_ex(hostbyaddr[0])
-          print(f"      {hostbyname_ex=}")
+          print(f"{socket.gethostbyname_ex(name)=}")
 
-          localhost_ip = socket.gethostbyname("localhost")
-          print(f"{localhost_ip=}")
-          hostbyaddr = socket.gethostbyaddr(localhost_ip)
-          print(f"         {hostbyaddr=}")
+          print(f"{(name:=socket.gethostname())=}")
 
-          print("localhost_name")
-          hostbyaddr = socket.gethostbyaddr("localhost")
-          print(f"         {hostbyaddr=}")
-          hostbyname_ex = socket.gethostbyname_ex(hostbyaddr[0])
-          print(f"      {hostbyname_ex=}")
-
-          localhost_fqdn = socket.getfqdn("localhost")
-          print(f"{localhost_fqdn=}")
-
-          try:
-            hostbyaddr = socket.gethostbyaddr(localhost_fqdn)
-          except Exception as hostbyaddr_EXC:
-            print(f"     {hostbyaddr_EXC=}")
-          else:
-            print(f"         {hostbyaddr=}")
-
-            try:
-              hostbyname_ex = socket.gethostbyname_ex(hostbyaddr[0])
-            except Exception as hostbyname_ex_EXC:
-              print(f"  {hostbyname_ex_EXC=}")
-            else:
-              print(f"      {hostbyname_ex=}")
+          print(f"{socket.gethostbyname_ex(name)=}")

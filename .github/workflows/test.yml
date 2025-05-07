@@ -15,27 +15,20 @@ jobs:
         with:
           python-version: ${{ matrix.py }}
 
-      - continue-on-error: true
-        run: cat /etc/hosts
-
-      # - continue-on-error: true
-      #   run: |
-      #     set +e
-      #     set -x
-      #     hostname
-      #     hostname -f
-      #     hostname -i
-      #     ipconfig getifaddr en0
-      #     ipconfig getifaddr en1
+      - shell: python
+        run: |
+          print("Hello")
 
       - shell: python
         run: |
           import socket
 
-          print(f"{(name:=socket.gethostname())=}")
+      - shell: python
+        run: |
+          import socket
+          socket.getfqdn()
 
-          print(f"{socket.gethostbyname_ex(name)=}")
-
-          print(f"{(name:=socket.gethostname())=}")
-
-          print(f"{socket.gethostbyname_ex(name)=}")
+      - shell: python
+        run: |
+          import socket
+          socket.gethostbyname_ex(socket.getfqdn())

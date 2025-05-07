@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, ubuntu-22.04, ubuntu-24.04-arm, ubuntu-22.04-arm, macos-13, macos-14, macos-15]
-        py: [3.9, 3]
+        py: [3]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/setup-python@v5
@@ -34,17 +34,17 @@ jobs:
 
           hostname = socket.gethostname()
           print(f"{hostname=}")
-          hostbyname_ex = socket.gethostbyname_ex(hostname)
-          print(f"      {hostbyname_ex=}")
           hostbyaddr = socket.gethostbyaddr(hostname)
           print(f"         {hostbyaddr=}")
+          hostbyname_ex = socket.gethostbyname_ex(hostbyaddr[0])
+          print(f"      {hostbyname_ex=}")
 
           fqdn = socket.getfqdn()
           print(f"{fqdn=}")
-          hostbyname_ex = socket.gethostbyname_ex(fqdn)
-          print(f"      {hostbyname_ex=}")
           hostbyaddr = socket.gethostbyaddr(fqdn)
           print(f"         {hostbyaddr=}")
+          hostbyname_ex = socket.gethostbyname_ex(hostbyaddr[0])
+          print(f"      {hostbyname_ex=}")
 
           localhost_ip = socket.gethostbyname("localhost")
           print(f"{localhost_ip=}")
@@ -52,20 +52,13 @@ jobs:
           print(f"         {hostbyaddr=}")
 
           print("localhost_name")
-          hostbyname_ex = socket.gethostbyname_ex("localhost")
-          print(f"      {hostbyname_ex=}")
           hostbyaddr = socket.gethostbyaddr("localhost")
           print(f"         {hostbyaddr=}")
+          hostbyname_ex = socket.gethostbyname_ex(hostbyaddr[0])
+          print(f"      {hostbyname_ex=}")
 
           localhost_fqdn = socket.getfqdn("localhost")
           print(f"{localhost_fqdn=}")
-
-          try:
-            hostbyname_ex = socket.gethostbyname_ex(localhost_fqdn)
-          except Exception as hostbyname_ex_EXC:
-            print(f"  {hostbyname_ex_EXC=}")
-          else:
-            print(f"      {hostbyname_ex=}")
 
           try:
             hostbyaddr = socket.gethostbyaddr(localhost_fqdn)
@@ -73,3 +66,10 @@ jobs:
             print(f"     {hostbyaddr_EXC=}")
           else:
             print(f"         {hostbyaddr=}")
+
+            try:
+              hostbyname_ex = socket.gethostbyname_ex(hostbyaddr[0])
+            except Exception as hostbyname_ex_EXC:
+              print(f"  {hostbyname_ex_EXC=}")
+            else:
+              print(f"      {hostbyname_ex=}")

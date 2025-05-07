@@ -31,59 +31,45 @@ jobs:
       - shell: python
         run: |
           import socket
-          from ipaddress import ip_address
-
-          def is_ip_address(target):
-            try:
-              ip_address(target)
-            except ValueError:
-              return False
-            return True
 
           hostname = socket.gethostname()
           print(f"{hostname=}")
+          hostbyname_ex = socket.gethostbyname_ex(hostname)
+          print(f"      {hostbyname_ex=}")
+          hostbyaddr = socket.gethostbyaddr(hostname)
+          print(f"         {hostbyaddr=}")
 
           fqdn = socket.getfqdn()
           print(f"{fqdn=}")
+          hostbyname_ex = socket.gethostbyname_ex(fqdn)
+          print(f"      {hostbyname_ex=}")
+          hostbyaddr = socket.gethostbyaddr(fqdn)
+          print(f"         {hostbyaddr=}")
 
-          hostinfo_name = socket.gethostbyname_ex(hostname)
-          print(f"{hostinfo_name=}")
+          localhost_ip = socket.gethostbyname("localhost")
+          print(f"{localhost_ip=}")
+          hostbyaddr = socket.gethostbyaddr(localhost_ip)
+          print(f"         {hostbyaddr=}")
 
-          hostinfo_fqdn = socket.gethostbyname_ex(fqdn)
-          print(f"{hostinfo_fqdn=}")
-
-          if is_ip_address(fqdn):
-            ip = fqdn
-          else:
-            ip = socket.gethostbyname(fqdn)
-          print(f"{ip=}")
-
-          ip_name, *_ = socket.gethostbyaddr(ip)
-          print(f"{ip_name=}")
-
-          ip_fqdn = socket.getfqdn(ip_name)
-          print(f"{ip_fqdn=}")
-
-          ip_hostinfo_name = socket.gethostbyname_ex(ip_name)
-          print(f"{ip_hostinfo_name=}")
-
-          ip_hostinfo_fqdn = socket.gethostbyname_ex(ip_fqdn)
-          print(f"{ip_hostinfo_fqdn=}")
+          print("localhost_name")
+          hostbyname_ex = socket.gethostbyname_ex("localhost")
+          print(f"      {hostbyname_ex=}")
+          hostbyaddr = socket.gethostbyaddr("localhost")
+          print(f"         {hostbyaddr=}")
 
           localhost_fqdn = socket.getfqdn("localhost")
           print(f"{localhost_fqdn=}")
 
-          localhost_hostinfo_name = socket.gethostbyname_ex("localhost")
-          print(f"{localhost_hostinfo_name=}")
+          try:
+            hostbyname_ex = socket.gethostbyname_ex(localhost_fqdn)
+          except Exception as hostbyname_ex_EXC:
+            print(f"  {hostbyname_ex_EXC=}")
+          else:
+            print(f"      {hostbyname_ex=}")
 
-          if '.arpa' in localhost_fqdn:
-            print(is_ip_address(localhost_fqdn))
-
-            arpa_name, *_ = socket.gethostbyaddr(ip)
-            print(f"{arpa_name=}")
-
-            localhost_hostinfo_arpa_name = socket.gethostbyname_ex(arpa_name)
-            print(f"{localhost_hostinfo_arpa_name=}")
-
-          localhost_hostinfo_fqdn = socket.gethostbyname_ex(localhost_fqdn)
-          print(f"{localhost_hostinfo_fqdn=}")
+          try:
+            hostbyaddr = socket.gethostbyaddr(localhost_fqdn)
+          except Exception as hostbyaddr_EXC:
+            print(f"     {hostbyaddr_EXC=}")
+          else:
+            print(f"         {hostbyaddr=}")

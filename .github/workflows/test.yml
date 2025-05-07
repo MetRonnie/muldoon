@@ -4,12 +4,67 @@ on: [workflow_dispatch]
 
 jobs:
   test:
-    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-22.04, ubuntu-24.04-arm, ubuntu-22.04-arm, windows-11-arm, macos-13, macos-14, macos-15]
+        py: [3.9, 3]
+    runs-on: ${{ matrix.os }}
     steps:
-      - run: |
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.py }}
+
+      - continue-on-error: true
+        run: cat /etc/hosts
+
+      - continue-on-error: true
+        run: |
+          set +e
           set -x
-          echo "$CI"
-          echo "$OSTYPE"
-          if [[ "$OSTYPE" == "darwin"* ]]; then
-            echo "Running on macOS"
-          fi
+          hostname
+          hostname -f
+          hostname -i
+          ipconfig getifaddr en0
+          ipconfig getifaddr en1
+
+      - shell: python
+        run: |
+          import socket
+          from ipaddress import ip_address
+
+          def is_ip_address(target):
+            try:
+              ip_address(target)
+            except ValueError:
+              return False
+            return True
+
+          fqdn = socket.getfqdn()
+          print(f"{fqdn=}")
+
+          hostname = socket.gethostname()
+          print(f"{hostname=}")
+
+          hostinfo_name = socket.gethostbyname_ex(hostname)
+          print(f"{hostinfo_name=}")
+
+          hostinfo_fqdn = socket.gethostbyname_ex(fqdn)
+          print(f"{hostinfo_fqdn=}")
+
+          if is_ip_address(fqdn):
+            ip = fqdn
+          else:
+            ip = socket.gethostbyname(fqdn)
+
+          ip_name, *_ = socket.gethostbyaddr(ip)
+          print(f"{ip_name=}")
+
+          ip_fqdn = socket.getfqdn(ip_name)
+          print(f"{ip_fqdn=}")
+
+          ip_hostinfo_name = socket.gethostbyname_ex(ip_name)
+          print(f"{ip_hostinfo_name=}")
+
+          ip_hostinfo_fqdn = socket.gethostbyname_ex(ip_fqdn)
+          print(f"{ip_hostinfo_fqdn=}")

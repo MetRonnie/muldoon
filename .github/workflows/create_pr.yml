@@ -14,11 +14,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh pr create \
-          --title "Test PR" \
-          --body "Hello, John" \
-          --base master \
-          --head prepare-34.5.7 \
-          --draft \
-          --assignee MetRonnie \
-          --reviewer MetRonnie
+        gh --version

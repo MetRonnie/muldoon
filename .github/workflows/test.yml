@@ -10,9 +10,15 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     env:
-      PS4: '[command]'
+      PS4: '+ \[\033[0;34m\]'
     steps:
       - run: |
-          if [[ -n "$RUNNER_DEBUG" ]]; then set -x; fi
+          set -x
+          if [[ -n "$RUNNER_DEBUG" ]]; then
+            echo "Debug mode is enabled"
+          else
+            echo "Debug mode is not enabled"
+            echo "$(hostname -f)"
+          fi
           gh --version
           git --version

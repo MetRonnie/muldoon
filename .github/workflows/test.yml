@@ -7,28 +7,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-13, macos-14, macos-15]
-        py: [3, 3.9]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    env:
+      PS4: '[command]'
     steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.py }}
-
-      - shell: python
-        run: |
-          print("Hello")
-
-      - shell: python
-        run: |
-          import socket
-
-      - shell: python
-        run: |
-          import socket
-          socket.getfqdn()
-
-      - shell: python
-        run: |
-          import socket
-          socket.gethostbyname_ex(socket.getfqdn())
+      - run: |
+          if [[ -n "$RUNNER_DEBUG" ]]; then set -x; fi
+          gh --version
+          git --version

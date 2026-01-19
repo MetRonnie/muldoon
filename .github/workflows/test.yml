@@ -22,3 +22,10 @@ jobs:
           fi
           gh --version
           git --version
+
+      - uses: actions/checkout@v6
+
+      - name: Bump dev version
+        uses: MetRonnie/release-actions/stage-2/bump-dev-version-js@bump-dev-js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

